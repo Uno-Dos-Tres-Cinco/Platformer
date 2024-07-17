@@ -40,7 +40,7 @@
                scene.add.existing(this);
                scene.physics.add.existing(this);
                this.setScale(2);
-               this.setCollideWorldBounds(true);
+               this.setCollideWorldBounds(false);
                this.setGravityY(3000); // We will set gravity *per object* rather than for the scene!
            }
        }
@@ -107,8 +107,7 @@
 
 
            // Configure the camera to follow the player only vertically
-           this.cameras.main.setBounds(0, 0, game.scale.width * 10, game.scale.height); // Extend the camera bounds
-           this.cameras.main.startFollow(player, true, 0, 1); // Follow the player only in the Y axis
+           this.cameras.main.startFollow(player);
        }
 
 
@@ -128,6 +127,8 @@
                platforms.create(100, 400, 'platform');
                platforms.create(300, 250, 'platform');
                platforms.create(500, 125, 'platform');
+               platforms.create(900, 0, 'platform');
+               platforms.create(1300, -125, 'platform');
            }
        }
 
