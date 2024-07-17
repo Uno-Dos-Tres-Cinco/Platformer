@@ -39,7 +39,7 @@
             scene.physics.add.existing(this);
             this.setScale(2);
             this.setCollideWorldBounds(true);
-            this.setGravityY(1500); //We will set gravity *per object* rather than for the scene!
+            this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
         }
     }
     
@@ -62,6 +62,7 @@
         this.load.image('platform', 'assets/platform.png');
         this.load.image('player', 'assets/player.png');
         this.load.image('grass', 'assets/grass.png');
+        this.load.image('mountains', 'assets/mountains.png');
     }
 
     function create()
@@ -70,7 +71,15 @@
        //let background = this.add.tileSprite(0, 0, game.scale.width, game.scale.height, 'sky').setOrigin(0, 0);
     
        //Create the platforms and the player character set to collide with the platforms
+       this.mountains = this.add.tileSprite(850,
+            450,
+            this.game.scale.width,
+            this.game.scale.height,
+            'mountains'
+            
+       );
        createPlatforms(this, level);
+       
        player = new Player(this, 400, 400);
        this.physics.add.collider(player, platforms);
 
@@ -81,11 +90,13 @@
        space.on('down', jump); //calls jump function when space is pressed
         
        this.grass = this.add.tileSprite(0,
-            this.game.height,
-            this.game.scale.width,
-            this.game.scale.height,
+            1515,
+            this.game.scale.width * 2,
+            this.game.scale.height * 2,
             'grass'
+            
         );
+        
     }
 
     function createPlatforms(scene, level)
