@@ -60,6 +60,7 @@
        var space;
        var level = 0;
        var jumpBuffer = 0;
+       var coyoteFrames = 0;
 
 
        function preload() {
@@ -151,25 +152,33 @@
            }
 
 
-           if (player.body.touching.down && jumpBuffer > 0) {
+           if (player.body.touching.down) {
+               coyoteFrames = 8;
+           }
+           
+           if ((player.body.touching.down || coyoteFrames > 0) && jumpBuffer > 0) {
                // If the player is on the ground, the player can jump
                player.setVelocityY(-1100);
                jumpBuffer = 0;
+               coyoteFrames = 0;
            }
-
-
+           
            if (jumpBuffer > 0) {
                jumpBuffer--;
            }
-
+           
+           if (coyoteFrames > 0) {
+               coyoteFrames--;
+           }
 
        }
 
 
        function jump(event) {
-           if (player.body.touching.down) {
+           if (player.body.touching.down || coyoteFrames > 0) {
                // If the player is on the ground, the player can jump
                player.setVelocityY(-1100);
+               coyoteFrames = 0;
            } else {
                jumpBuffer = 8;
            }
