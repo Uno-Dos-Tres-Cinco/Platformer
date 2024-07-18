@@ -56,6 +56,7 @@
             this.load.image("bounceBlock", "assets/slime.png"); 
             this.load.image("fallingBlock", "assets/falling_plat.png"); 
             this.load.image("dirt", "assets/dirt.png"); 
+            this.load.image('trust_me_bro', 'assets/trust.png');
         }
 
         function create() {
@@ -73,8 +74,11 @@
 
             fallingBlocks = this.physics.add.group();
             createFallingBlock(this, 650, -1100);
-            createFallingBlock(this, 900, -1100);
-            createFallingBlock(this, 1250, -1100);
+           	createFallingBlock(this, 900, -1100);
+           	createFallingBlock(this, 1250, -1100);
+           	createFallingBlock(this, 3900, -600);
+           	createFallingBlock(this, 3900, -750);
+           	createFallingBlock(this, 3900, -900);
 
             this.physics.add.collider(player, fallingBlocks, (player, block) => {
                 if (player.body.touching.down && block.body.touching.up) {
@@ -132,37 +136,41 @@
             platforms = scene.physics.add.staticGroup();
 
             let basePlatform = platforms.create(game.scale.width / 2, game.scale.height - 30, "platform");
-            let basePlatform2 = platforms.create(2300, -300, "platform");
+           	let basePlatform2 = platforms.create(2300, -300, "platform");
+                	basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
+                	basePlatform2.setScale(5,1).refreshBody();
 
-            basePlatform.setScale(10, 1).refreshBody(); 
-            basePlatform2.setScale(5, 1).refreshBody();
-
-            platforms.create(600, 650, "platform");
-            platforms.create(950, 750, "platform");
-            platforms.create(300, 550, "platform");
-            platforms.create(100, 400, "platform");
-            platforms.create(300, 250, "platform");
-            platforms.create(500, 125, "platform");
-            platforms.create(900, 0, "platform");
-            platforms.create(1300, -125, "platform");
-            platforms.create(1300, -275, "platform");
-            platforms.create(900, -300, "stud");
-            platforms.create(700, -350, "stud");
-            platforms.create(500, -450, "stud");
-            platforms.create(500, -600, "stud");
-            platforms.create(300, -600, "vertPlat");
-            platforms.create(300, -900, "vertPlat");
-            platforms.create(300, -1050, "vertPlat");
-            platforms.create(268, -850, "stud");
-            platforms.create(1550, -1050, "vertPlat");
-            platforms.create(1520, -1250, "stud");
-            platforms.create(1550, -1150, "vertPlat");
-            platforms.create(1550, -1250, "vertPlat");
-            platforms.create(1550, -1350, "vertPlat");
-            platforms.create(1520, -1100, "stud");
-            platforms.create(1520, -1250, "stud");
-            platforms.create(500, 125, "platform");
-        }
+                	platforms.create(600, 650, "platform"); // creates the upper left platform
+                	platforms.create(950, 750, "platform"); // creates the bottom right platform
+                	platforms.create(300, 550, "platform");
+                	platforms.create(100, 400, "platform");
+                	platforms.create(300, 250, "platform");
+                	platforms.create(500, 125, "platform");
+                	platforms.create(900, 0, "platform");
+                	platforms.create(1300, -125, "platform");
+                	platforms.create(1300, -275, "platform");
+                	platforms.create(900, -300, "stud");
+                	platforms.create(700, -350, "stud");
+                	platforms.create(500, -450, "stud");
+                	platforms.create(500, -600, "stud");
+                	platforms.create(300, -600, "vertPlat");
+                	platforms.create(300, -900, "vertPlat");
+                	platforms.create(300, -1050, "vertPlat");
+                	platforms.create(268, -850, "stud");
+                	platforms.create(1550, -1050, "vertPlat");
+                	platforms.create(1520, -1250, "stud");
+                	platforms.create(1550, -1150, "vertPlat");
+                	platforms.create(1550, -1250, "vertPlat");
+                	platforms.create(1550, -1350, "vertPlat");
+                	platforms.create(1520, -1100, "stud");
+                	platforms.create(1520, -1250, "stud");
+                	platforms.create(500, 125, "platform");
+                	platforms.create(3000, -450, "platform");
+                	platforms.create(3350, -450, "stud");
+                	platforms.create(3700, -500, 'stud');
+                	platforms.create(4100, -900, 'platform');
+            }
+        
 
         function createBounceBlock(scene, x, y) {
             bounceBlocks.create(x, y, "bounceBlock");
@@ -170,23 +178,25 @@
 
         function createFallingBlock(scene, x, y) {
             let fallingBlock = scene.physics.add.image(x, y, "fallingBlock");
+            fallingBlocks.add(fallingBlock);
             fallingBlock.setImmovable(true);
             fallingBlock.body.allowGravity = false;
             fallingBlock.originalY = y; 
-            fallingBlocks.add(fallingBlock);
+            fallingBlock.originalX = x;
         }
 
         function fall(player, fallingBlock) {
             fallingBlock.setImmovable(false);
             fallingBlock.body.allowGravity = true;
-            fallingBlock.setVelocityX(0); 
-            fallingBlock.setVelocityY(500); 
+            fallingBlock.body.setVelocityX(0);
 
             player.scene.time.delayedCall(3000, function () {
+                fallingBlock.setPosition(fallingBlock.originalX, fallingBlock.originalY);
                 fallingBlock.setImmovable(true);
                 fallingBlock.body.allowGravity = false;
                 fallingBlock.setVelocityY(0);
-                fallingBlock.setPosition(fallingBlock.x, fallingBlock.originalY);
+                fallingBlock.setVelocityX(0);
+                
             });
         }
 
