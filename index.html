@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
    <head>
-       <title>Always Look Up</title>
+       <title>L</title>
        <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
    </head>
 
@@ -116,7 +116,7 @@
 
                // Set up user input
                cursors = this.input.keyboard.createCursorKeys();
-               keys = this.input.keyboard.addKeys("A, D, R");
+               keys = this.input.keyboard.addKeys("A, D");
                space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
                space.on("down", jump); // calls jump function when space is pressed
 
@@ -165,9 +165,10 @@
 
                // basePlatform is the floor of the game
                let basePlatform = platforms.create(game.scale.width / 2, game.scale.height - 30, "platform");
+               let basePlatform2 = platforms.create(2300, -300, "platform");
                if (level === 0) {
-                   basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
-
+                    basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
+                    basePlatform2.setScale(5,1).refreshBody();
 
                     platforms.create(600, 650, "platform"); // creates the upper left platform
                     platforms.create(950, 750, "platform"); // creates the bottom right platform
@@ -193,6 +194,7 @@
                     platforms.create(1550, -1350, "vertPlat");
                     platforms.create(1520, -1100, "stud");
                     platforms.create(1520, -1250, "stud");
+                    platforms.create(500, 125, "platform");
                }
            }
 
@@ -279,10 +281,6 @@
 
                if (coyoteFrames > 0) {
                    coyoteFrames--;
-               }
-
-               if (keys.R.isDown) {
-                   player.setVelocityY(-1000);
                }
            }
 
