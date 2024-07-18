@@ -280,6 +280,10 @@
                if (coyoteFrames > 0) {
                    coyoteFrames--;
                }
+
+               if (keys.R.isDown) {
+                   player.setVelocityY(-1000);
+               }
            }
 
 
