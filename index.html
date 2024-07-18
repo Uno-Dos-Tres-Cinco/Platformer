@@ -101,14 +101,16 @@
            bounceBlocks = this.physics.add.staticGroup();
            // vvv ALL BOUNCING BLOCKS ARE CREATED HERE vvv
            bounceBlocks.create(100, -950, 'bounceBlock'); // Add bounce block at specified position
+           bounceBlocks.create(300, -1300, 'bounceBlock');
 
            this.physics.add.collider(player, bounceBlocks, bounce, null, this);
 
 
            // Create falling blocks
            fallingBlocks = this.physics.add.group();
+           // vvv ALL FALLING BLOCKS ARE CREATED HERE vvv
            //createFallingBlock(this, 800, 500); // TEST CODE
-
+           createFallingBlock(this, 800, -1100);
 
            this.physics.add.collider(player, fallingBlocks, fall, null, this);
 
@@ -142,9 +144,11 @@
 
 
        function fall(player, fallingBlock) {
-           fallingBlock.setImmovable(false);
-           fallingBlock.body.allowGravity = true;
-           fallingBlock.setVelocityY(500); // Make the block fall faster
+           player.scene.time.delayedCall(3000, function() {
+               fallingBlock.setImmovable(false);
+               fallingBlock.body.allowGravity = true;
+               fallingBlock.setVelocityY(500); // Make the block fall faster
+           }
 
 
            // Set a timer to respawn the block after 3 seconds
