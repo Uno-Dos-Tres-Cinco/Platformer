@@ -52,6 +52,8 @@
        // Game Objects
        var platforms;
        var player;
+       var bounceBlocks;
+       var fallingBlocks;
 
 
        // Keyboard controls
@@ -64,13 +66,15 @@
 
 
        function preload() {
-           // this.load.image('sky', 'assets/clouds.png');
+           // Load assets
            this.load.image('platform', 'assets/platform.png');
            this.load.image('player', 'assets/player.png');
            this.load.image('grass', 'assets/grass.png');
            this.load.image('mountains', 'assets/mountains.png');
            this.load.image('stud', 'assets/stud.png');
            this.load.image('vertPlat', 'assets/vertical_platform.png');
+           this.load.image('bounceBlock', 'assets/slime.png'); // Load bounce block image
+           this.load.image('fallingBlock', 'assets/falling_plat.png'); // Load falling block image
        }
 
 
@@ -91,16 +95,30 @@
 
            player = new Player(this, 400, 400);
            this.physics.add.collider(player, platforms);
-           //this.physics.add.collider(player, fallingPlatforms);
-           //this.physics.add.collider(player, instantFallPlatforms);
+
+
+           // Create bounce blocks
+           bounceBlocks = this.physics.add.staticGroup();
+           // vvv ALL BOUNCING BLOCKS ARE CREATED HERE vvv
+           bounceBlocks.create(100, -950, 'bounceBlock'); // Add bounce block at specified position
+
+           this.physics.add.collider(player, bounceBlocks, bounce, null, this);
+
+
+           // Create falling blocks
+           fallingBlocks = this.physics.add.group();
+           //createFallingBlock(this, 800, 500); // TEST CODE
+
+
+           this.physics.add.collider(player, fallingBlocks, fall, null, this);
+
 
            // Set up user input
            cursors = this.input.keyboard.createCursorKeys();
            keys = this.input.keyboard.addKeys('A, D');
-           //upW = this.input.keyboard.addKeys('W');
            space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
            space.on('down', jump); // calls jump function when space is pressed
-           //upW.on('down', jump);
+
 
            this.grass = this.add.tileSprite(0,
                1515,
@@ -113,7 +131,35 @@
            // Configure the camera to follow the player only vertically
            this.cameras.main.startFollow(player);
        }
+       
+       function createFallingBlock(scene, x, y) {
+           let fallingBlock = scene.physics.add.image(x, y, 'fallingBlock');
+           fallingBlock.setImmovable(true);
+           fallingBlock.body.allowGravity = false;
+           fallingBlock.originalY = y; // Store original position for respawn
+           fallingBlocks.add(fallingBlock);
+       }
 
+
+       function fall(player, fallingBlock) {
+           fallingBlock.setImmovable(false);
+           fallingBlock.body.allowGravity = true;
+           fallingBlock.setVelocityY(500); // Make the block fall faster
+
+
+           // Set a timer to respawn the block after 3 seconds
+           player.scene.time.delayedCall(3000, function() {
+               fallingBlock.setImmovable(true);
+               fallingBlock.body.allowGravity = false;
+               fallingBlock.setVelocityY(0);
+               fallingBlock.setPosition(fallingBlock.x, fallingBlock.originalY);
+           });
+       }
+
+
+       function bounce(player, bounceBlock) {
+           player.setVelocityY(-1600); // Adjust the bounce height to be less strong
+       }
 
        function createPlatforms(scene, level) {
            platforms = scene.physics.add.staticGroup();
@@ -141,6 +187,7 @@
                platforms.create(300, -600, 'vertPlat');
                platforms.create(300, -900, 'vertPlat');
                platforms.create(268, -850, 'stud');
+
            }
        }
 
@@ -168,24 +215,21 @@
            if (player.body.touching.down) {
                coyoteFrames = 8;
            }
-           
+         
            if ((player.body.touching.down || coyoteFrames > 0) && jumpBuffer > 0) {
                // If the player is on the ground, the player can jump
                player.setVelocityY(-1100);
                jumpBuffer = 0;
                coyoteFrames = 0;
            }
-           
+         
            if (jumpBuffer > 0) {
                jumpBuffer--;
            }
-           
+         
            if (coyoteFrames > 0) {
                coyoteFrames--;
            }
-           
-           
-
        }
 
 
