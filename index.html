@@ -69,6 +69,7 @@
            this.load.image('player', 'assets/player.png');
            this.load.image('grass', 'assets/grass.png');
            this.load.image('mountains', 'assets/mountains.png');
+           this.load.image('stud', 'assets/stud.png');
        }
 
 
@@ -89,14 +90,16 @@
 
            player = new Player(this, 400, 400);
            this.physics.add.collider(player, platforms);
-
+           //this.physics.add.collider(player, fallingPlatforms);
+           //this.physics.add.collider(player, instantFallPlatforms);
 
            // Set up user input
            cursors = this.input.keyboard.createCursorKeys();
            keys = this.input.keyboard.addKeys('A, D');
+           //upW = this.input.keyboard.addKeys('W');
            space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
            space.on('down', jump); // calls jump function when space is pressed
-
+           //upW.on('down', jump);
 
            this.grass = this.add.tileSprite(0,
                1515,
@@ -129,6 +132,11 @@
                platforms.create(500, 125, 'platform');
                platforms.create(900, 0, 'platform');
                platforms.create(1300, -125, 'platform');
+               platforms.create(1300, -275, 'platform');
+               platforms.create(900, -300, 'stud');
+               platforms.create(700, -350, 'stud');
+               platforms.create(500, -450, 'stud');
+               platforms.create(500, -600, 'stud');
            }
        }
 
@@ -171,6 +179,8 @@
            if (coyoteFrames > 0) {
                coyoteFrames--;
            }
+           
+           
 
        }
 
