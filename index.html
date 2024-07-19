@@ -186,10 +186,12 @@
         }
 
         function fall(player, fallingBlock) {
+            player.scene.time.delayedCall(300, function () {
             fallingBlock.setImmovable(false);
             fallingBlock.body.allowGravity = true;
             fallingBlock.body.setVelocityX(0);
             fallingBlock.body.setVelocityY(1000);
+            });
 
             player.scene.time.delayedCall(3000, function () {
                 fallingBlock.setPosition(fallingBlock.originalX, fallingBlock.originalY);
