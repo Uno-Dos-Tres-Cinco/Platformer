@@ -71,6 +71,13 @@
                 bounceBlocks.create(100, -950, "bounceBlock");
                 bounceBlocks.create(5100, -700, "bounceBlock");
                 bounceBlocks.create(6200, -1000, "bounceBlock");
+                bounceBlocks.create(400, -2100, 'bounceBlock');
+                bounceBlocks.create(200, -2500, 'bounceBlock');
+                bounceBlocks.create(0, -2900, 'bounceBlock');
+                bounceBlocks.create(-200, -3300, 'bounceBlock');
+                bounceBlocks.create(-1100, -2700, 'bounceBlock');
+                bounceBlocks.create(-1500, -3100, 'bounceBlock');
+                bounceBlocks.create(-1500, -3600, 'bounceBlock');
 
                 this.physics.add.collider(player, bounceBlocks, bounce, null, this);
 
@@ -87,6 +94,8 @@
                 createFallingBlock(this, 1650, -1800);
                 createFallingBlock(this, 1300, -1900);
                 createFallingBlock(this, 1000, -2000);
+                createFallingBlock(this, -800, -3600);
+                createFallingBlock(this, -1300, -4000);
 
                 this.physics.add.collider(
                     player,
@@ -147,10 +156,12 @@
                 let basePlatform2 = platforms.create(2300, -300, "platform");
                 let basePlatform3 = platforms.create(5400, -550, "platform"); //headhitter jumps
                 let basePlatform4 = platforms.create(3300, -2000, "platform");
+                let basePlatform5 = platforms.create(-500, -4000, "platform");
                 basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
                 basePlatform2.setScale(5, 1).refreshBody();
                 basePlatform3.setScale(5, 1).refreshBody();
                 basePlatform4.setScale(5, 1).refreshBody();
+                basePlatform5.setScale(5, 1).refreshBody();
 
                 platforms.create(600, 650, "platform"); // creates the upper left platform
                 platforms.create(950, 750, "platform"); // creates the bottom right platform
@@ -202,6 +213,9 @@
                 platforms.create(4050, -1850, "platform");
                 platforms.create(2600, -2000, "platform");
                 platforms.create(700, -2100, 'platform');
+                platforms.create(-500, -3600, 'platform');
+                platforms.create(-1300, -3000, 'stud');
+                platforms.create(-1300, -3500, 'stud');
             }
 
             function createBounceBlock(scene, x, y) {
