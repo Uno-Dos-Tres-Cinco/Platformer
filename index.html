@@ -36,6 +36,7 @@
                     this.setPosition(this.spawnPoint.x, this.spawnPoint.y); // Respawn the player at the spawn point
                     this.setVelocity(0, 0); // Reset velocity
                     resetTimer(); // Reset the timer when the player respawns
+                    hideFinishText(); // Hide the finish text
                 }
             }
 
@@ -56,6 +57,17 @@
                 }
             }
 
+            class FinishPoint extends Phaser.Physics.Arcade.Sprite {
+                constructor(scene, x, y) {
+                    super(scene, x, y, 'finish');
+                    scene.add.existing(this);
+                    scene.physics.add.existing(this);
+                    this.setSize(20, 20); // Made the finish point smaller
+                    this.setImmovable(true);
+                    this.setOrigin(0.5, 0.5);
+                }
+            }
+
             var game = new Phaser.Game(config);
 
             var platforms;
@@ -69,6 +81,8 @@
             var coyoteFrames = 0;
             var clockText;
             var elapsedTime = 0;
+            var timerRunning = true;
+            var finishText;
 
             function preload() {
                 this.load.image("platform", "assets/platform.png");
@@ -81,17 +95,14 @@
                 this.load.image("fallingBlock", "assets/falling_plat.png");
                 this.load.image("dirt", "assets/dirt.png");
                 this.load.image("trust_me_bro", "assets/trust.png");
-                this.load.image('sign', 'assets/pixil-frame-0(12).png');
-                this.load.image('yes', 'assets/pixilart-drawing.png');
                 this.load.image('checkpoint', 'assets/checkpoint.png');
+                this.load.image('finish', 'assets/finish.png'); // Add the finish point image
             }
 
             function create() {
                 this.add.image(1620, -1400, "trust_me_bro");
                 createMountains(this);
                 createPlatforms(this);
-                this.add.image(-200, -4400, 'sign');
-                this.add.image(7550, 0, 'yes');
 
                 player = new Player(this, 1500, 800);
                 this.physics.add.collider(player, platforms);
@@ -107,6 +118,7 @@
                 bounceBlocks.create(-1100, -2700, 'bounceBlock');
                 bounceBlocks.create(-1500, -3100, 'bounceBlock');
                 bounceBlocks.create(-1500, -3600, 'bounceBlock');
+                bounceBlocks.create(1650, -4500, 'bounceBlock');
 
                 this.physics.add.collider(player, bounceBlocks, bounce, null, this);
 
@@ -125,6 +137,45 @@
                 createFallingBlock(this, 1000, -2000);
                 createFallingBlock(this, -800, -3600);
                 createFallingBlock(this, -1300, -4000);
+                createFallingBlock(this, 250, -4100);
+                createFallingBlock(this, 650, -4200);
+                createFallingBlock(this, 1000, -4300);
+                createFallingBlock(this, 1350, -4400);
+                createFallingBlock(this, 1650, -4900);
+                createFallingBlock(this, 1650, -5050);
+                createFallingBlock(this, 1650, -5200);
+                createFallingBlock(this, 1650, -5350);
+                createFallingBlock(this, 1650, -5500);
+                createFallingBlock(this, 1650, -5650);
+                createFallingBlock(this, 1650, -5800);
+                createFallingBlock(this, 1650, -5950);
+                createFallingBlock(this, 1650, -6100);
+                createFallingBlock(this, 1650, -6250);
+                createFallingBlock(this, 1650, -6400);
+                createFallingBlock(this, 1650, -6550);
+                createFallingBlock(this, 1650, -6700);
+                createFallingBlock(this, 1650, -6850);
+                createFallingBlock(this, 1650, -7000);
+                createFallingBlock(this, 1650, -7150);
+                createFallingBlock(this, 1650, -7300);
+                createFallingBlock(this, 1650, -7450);
+                createFallingBlock(this, 1650, -7600);
+                createFallingBlock(this, 1650, -7750);
+                createFallingBlock(this, 1650, -7900);
+                createFallingBlock(this, 1650, -8050);
+                createFallingBlock(this, 1650, -8200);
+                createFallingBlock(this, 1650, -8350);
+                createFallingBlock(this, 1650, -8500);
+                createFallingBlock(this, 1650, -8650);
+                createFallingBlock(this, 1650, -8800);
+                createFallingBlock(this, 1650, -8950);
+                createFallingBlock(this, 1650, -9100);
+                createFallingBlock(this, 1650, -9250);
+                createFallingBlock(this, 1650, -9400);
+                createFallingBlock(this, 1650, -9550);
+                createFallingBlock(this, 1650, -9700);
+                createFallingBlock(this, 1650, -9850);
+                createFallingBlock(this, 1650, -10000);
 
                 this.physics.add.collider(
                     player,
@@ -158,6 +209,11 @@
                     }
                 }, null, this);
 
+                // Add finish point
+                let finishPoint = new FinishPoint(this, 2350, -10050);
+                this.physics.add.existing(finishPoint);
+                this.physics.add.collider(player, finishPoint, reachFinish, null, this);
+
                 cursors = this.input.keyboard.createCursorKeys();
                 keys = this.input.keyboard.addKeys("A, D, W, R, Q, E");
                 space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -172,12 +228,20 @@
                     font: "32px Arial",
                     fill: "#ffffff"
                 }).setScrollFactor(0); // Ensure the text is fixed to the camera
+
+                // Create finish text (hidden initially)
+                finishText = this.add.text(config.width / 2, config.height / 2, "", {
+                    font: "64px Arial",
+                    fill: "#000000",
+                    align: "center"
+                }).setOrigin(0.5).setScrollFactor(0);
+                finishText.setVisible(false);
             }
 
             function createMountains(scene) {
                 const mountainWidth = 1700;
-                const numberOfMountains = 5;
-                const dirtDepth = 1;
+                const numberOfMountains = 10; // Increased number to extend further right
+                const dirtDepth = 2; // Increased depth to make it more visible
 
                 for (let i = -numberOfMountains; i <= numberOfMountains; i++) {
                     let mountainX = i * mountainWidth + mountainWidth / 2;
@@ -204,13 +268,15 @@
                 let basePlatform3 = platforms.create(5400, -550, "platform"); //headhitter jumps
                 let basePlatform4 = platforms.create(3300, -2000, "platform");
                 let basePlatform5 = platforms.create(-500, -4000, "platform");
-                let basePlatform6 = platforms.create(7200, 100, 'platform');
+                let basePlatform6 = platforms.create(2350, -10000, "platform");
+                let basePlatform7 = platforms.create(950, -10000, "platform");
                 basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
                 basePlatform2.setScale(5, 1).refreshBody();
                 basePlatform3.setScale(5, 1).refreshBody();
                 basePlatform4.setScale(5, 1).refreshBody();
                 basePlatform5.setScale(5, 1).refreshBody();
                 basePlatform6.setScale(5, 1).refreshBody();
+                basePlatform7.setScale(5, 1).refreshBody();
 
                 platforms.create(600, 650, "platform"); // creates the upper left platform
                 platforms.create(950, 750, "platform"); // creates the bottom right platform
@@ -265,17 +331,6 @@
                 platforms.create(-500, -3600, 'platform');
                 platforms.create(-1300, -3000, 'stud');
                 platforms.create(-1300, -3500, 'stud');
-                platforms.create(7950, 100, 'stud');
-                platforms.create(8350, 100, 'stud');
-                platforms.create(8750, 100, 'stud');
-                platforms.create(9150, 100, 'stud');
-                platforms.create(9550, 100, 'stud');
-                platforms.create(9950, 100, 'stud');
-                platforms.create(10350, 100, 'stud');
-                platforms.create(10750, 100, 'stud');
-                platforms.create(11150, 100, 'stud');
-                platforms.create(11550, 100, 'stud');
-                platforms.create(12000, 100, 'platform');
             }
 
             function createBounceBlock(scene, x, y) {
@@ -315,6 +370,16 @@
             }
 
             function update() {
+                if (timerRunning) {
+                    elapsedTime += this.game.loop.delta / 1000; // Increment elapsedTime by delta time
+                    let hours = Math.floor(elapsedTime / 3600);
+                    let minutes = Math.floor((elapsedTime % 3600) / 60);
+                    let seconds = Math.floor(elapsedTime % 60);
+                    clockText.setText(
+                        `Time ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                    );
+                }
+
                 player.setVelocityX(0);
 
                 player.setDragX(1000);
@@ -361,15 +426,6 @@
                 if (player.y > config.height) {
                     player.respawn();
                 }
-
-                // Update the clock
-                elapsedTime += this.game.loop.delta / 1000; // Increment elapsedTime by delta time
-                let hours = Math.floor(elapsedTime / 3600);
-                let minutes = Math.floor((elapsedTime % 3600) / 60);
-                let seconds = Math.floor(elapsedTime % 60);
-                clockText.setText(
-                    `Time ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-                );
             }
 
             function jump(event) {
@@ -383,8 +439,25 @@
 
             function resetTimer() {
                 elapsedTime = 0; // Reset elapsed time to 0
+                timerRunning = true; // Restart the timer
+            }
+
+            function reachFinish(player, finishPoint) {
+                timerRunning = false; // Stop the timer
+                let hours = Math.floor(elapsedTime / 3600);
+                let minutes = Math.floor((elapsedTime % 3600) / 60);
+                let seconds = Math.floor(elapsedTime % 60);
+                finishText.setText(
+                    `You Won!\nTime: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                );
+                finishText.setVisible(true);
+            }
+
+            function hideFinishText() {
+                finishText.setVisible(false); // Hide the finish text
             }
         </script>
     </body>
 </html>
+
 
