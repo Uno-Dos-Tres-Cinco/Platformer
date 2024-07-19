@@ -1,275 +1,297 @@
 <!doctype html>
 <html>
-<head>
-    <title>Always Look Up</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-</head>
-<body>
-    <script>
-        var config = {
-            type: Phaser.AUTO,
-            width: 1700,
-            height: 900,
-            backgroundColor: "#658cf0",
-            physics: {
-                default: "arcade"
-            },
+    <head>
+        <title>Always Look Up</title>
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    </head>
+    <body>
+        <script>
+            var config = {
+                type: Phaser.AUTO,
+                width: 1700,
+                height: 900,
+                backgroundColor: "#658cf0",
+                physics: {
+                    default: "arcade"
+                },
 
-            scene: {
-                preload: preload,
-                create: create,
-                update: update
-            }
-        };
-
-        class Player extends Phaser.Physics.Arcade.Sprite {
-            constructor(scene, x, y) {
-                super(scene, x, y, "player");
-                scene.add.existing(this);
-                scene.physics.add.existing(this);
-                this.setScale(2);
-                this.setCollideWorldBounds(false);
-                this.setGravityY(3000); 
-            }
-        }
-
-        var game = new Phaser.Game(config);
-
-        var platforms;
-        var player;
-        var bounceBlocks;
-        var fallingBlocks;
-
-        var cursors;
-        var keys;
-        var space;
-        var jumpBuffer = 0;
-        var coyoteFrames = 0;
-
-        function preload() {
-            this.load.image("platform", "assets/platform.png");
-            this.load.image("player", "assets/player.png");
-            this.load.image("grass", "assets/grass.png");
-            this.load.image("mountains", "assets/mountains.png");
-            this.load.image("stud", "assets/stud.png");
-            this.load.image("vertPlat", "assets/vertical_platform.png");
-            this.load.image("bounceBlock", "assets/slime.png"); 
-            this.load.image("fallingBlock", "assets/falling_plat.png"); 
-            this.load.image("dirt", "assets/dirt.png"); 
-            this.load.image('trust_me_bro', 'assets/trust.png');
-        }
-
-        function create() {
-            this.add.image(1620, -1400, "trust_me_bro");
-            createMountains(this);
-            createPlatforms(this);
-
-            player = new Player(this, 1500, 800);
-            this.physics.add.collider(player, platforms);
-
-            bounceBlocks = this.physics.add.staticGroup();
-            bounceBlocks.create(100, -950, "bounceBlock"); 
-
-            this.physics.add.collider(player, bounceBlocks, bounce, null, this);
-
-            fallingBlocks = this.physics.add.group();
-            createFallingBlock(this, 650, -1100);
-           	createFallingBlock(this, 900, -1100);
-           	createFallingBlock(this, 1250, -1100);
-           	createFallingBlock(this, 3900, -600);
-           	createFallingBlock(this, 3900, -750);
-           	createFallingBlock(this, 3900, -900);
-
-            this.physics.add.collider(player, fallingBlocks, (player, block) => {
-                if (player.body.touching.down && block.body.touching.up) {
-                    fall(player, block);
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
                 }
-            }, null, this);
+            };
 
-            this.grass = this.add.tileSprite(
-                0,
-                1515,
-                this.game.scale.width * 2,
-                this.game.scale.height * 2,
-                "grass"
-            );
+            class Player extends Phaser.Physics.Arcade.Sprite {
+                constructor(scene, x, y) {
+                    super(scene, x, y, "player");
+                    scene.add.existing(this);
+                    scene.physics.add.existing(this);
+                    this.setScale(2);
+                    this.setCollideWorldBounds(false);
+                    this.setGravityY(3000);
+                }
+            }
 
-            cursors = this.input.keyboard.createCursorKeys();
-            keys = this.input.keyboard.addKeys("A, D, W, R");
-            space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-            space.on("down", jump);
-            cursors.up.on("down", jump);
-            keys.W.on("down", jump);
+            var game = new Phaser.Game(config);
 
-            this.cameras.main.startFollow(player);
-        }
+            var platforms;
+            var player;
+            var bounceBlocks;
+            var fallingBlocks;
 
-        function createMountains(scene) {
-            const mountainWidth = 1700;
-            const numberOfMountains = 5;
-            const dirtDepth = 1;
+            var cursors;
+            var keys;
+            var space;
+            var jumpBuffer = 0;
+            var coyoteFrames = 0;
 
-            for (let i = -numberOfMountains; i <= numberOfMountains; i++) {
-                let mountainX = i * mountainWidth + mountainWidth / 2;
+            function preload() {
+                this.load.image("platform", "assets/platform.png");
+                this.load.image("player", "assets/player.png");
+                this.load.image("grass", "assets/grass.png");
+                this.load.image("mountains", "assets/mountains.png");
+                this.load.image("stud", "assets/stud.png");
+                this.load.image("vertPlat", "assets/vertical_platform.png");
+                this.load.image("bounceBlock", "assets/slime.png");
+                this.load.image("fallingBlock", "assets/falling_plat.png");
+                this.load.image("dirt", "assets/dirt.png");
+                this.load.image("trust_me_bro", "assets/trust.png");
+            }
 
-                scene.add.tileSprite(
-                    mountainX,
-                    450,
-                    mountainWidth,
-                    scene.game.scale.height,
-                    "mountains"
+            function create() {
+                this.add.image(1620, -1400, "trust_me_bro");
+                createMountains(this);
+                createPlatforms(this);
+
+                player = new Player(this, 1500, 800);
+                this.physics.add.collider(player, platforms);
+
+                bounceBlocks = this.physics.add.staticGroup();
+                bounceBlocks.create(100, -950, "bounceBlock");
+                bounceBlocks.create(5100, -700, "bounceBlock");
+                bounceBlocks.create(6200, -1000, "bounceBlock");
+
+                this.physics.add.collider(player, bounceBlocks, bounce, null, this);
+
+                fallingBlocks = this.physics.add.group();
+                createFallingBlock(this, 650, -1100);
+                createFallingBlock(this, 900, -1100);
+                createFallingBlock(this, 1250, -1100);
+                createFallingBlock(this, 3900, -600);
+                createFallingBlock(this, 3900, -750);
+                createFallingBlock(this, 3900, -900);
+                createFallingBlock(this, 5450, -1000);
+                createFallingBlock(this, 5850, -1000);
+                createFallingBlock(this, 2200, -2100);
+                createFallingBlock(this, 1650, -1800);
+                createFallingBlock(this, 1300, -1900);
+                createFallingBlock(this, 1000, -2000);
+
+                this.physics.add.collider(
+                    player,
+                    fallingBlocks,
+                    (player, block) => {
+                        if (player.body.touching.down && block.body.touching.up) {
+                            fall(player, block);
+                        }
+                    },
+                    null,
+                    this
                 );
 
-                for (let j = 1; j <= dirtDepth; j++) {
-                    scene.add.tileSprite(
-                        mountainX,
-                        450 + (j * scene.game.scale.height),
-                        mountainWidth,
-                        scene.game.scale.height,
-                        "dirt"
-                    );
+                this.grass = this.add.tileSprite(
+                    0,
+                    1515,
+                    this.game.scale.width * 2,
+                    this.game.scale.height * 2,
+                    "grass"
+                );
+
+                cursors = this.input.keyboard.createCursorKeys();
+                keys = this.input.keyboard.addKeys("A, D, W, R, Q, E");
+                space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+                space.on("down", jump);
+                cursors.up.on("down", jump);
+                keys.W.on("down", jump);
+
+                this.cameras.main.startFollow(player);
+            }
+
+            function createMountains(scene) {
+                const mountainWidth = 1700;
+                const numberOfMountains = 5;
+                const dirtDepth = 1;
+
+                for (let i = -numberOfMountains; i <= numberOfMountains; i++) {
+                    let mountainX = i * mountainWidth + mountainWidth / 2;
+
+                    scene.add.tileSprite(mountainX, 450, mountainWidth, scene.game.scale.height, "mountains");
+
+                    for (let j = 1; j <= dirtDepth; j++) {
+                        scene.add.tileSprite(
+                            mountainX,
+                            450 + j * scene.game.scale.height,
+                            mountainWidth,
+                            scene.game.scale.height,
+                            "dirt"
+                        );
+                    }
                 }
             }
-        }
 
-        function createPlatforms(scene) {
-            platforms = scene.physics.add.staticGroup();
+            function createPlatforms(scene) {
+                platforms = scene.physics.add.staticGroup();
 
-            let basePlatform = platforms.create(game.scale.width / 2, game.scale.height - 30, "platform");
-           	let basePlatform2 = platforms.create(2300, -300, "platform");
-            let basePlatform3 = platforms.create(5400, -550, "platform");//headhitter jumps
-                	basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
-                	basePlatform2.setScale(5,1).refreshBody();
-                    basePlatform3.setScale(5,1).refreshBody();
-            
+                let basePlatform = platforms.create(game.scale.width / 2, game.scale.height - 30, "platform");
+                let basePlatform2 = platforms.create(2300, -300, "platform");
+                let basePlatform3 = platforms.create(5400, -550, "platform"); //headhitter jumps
+                let basePlatform4 = platforms.create(3300, -2000, "platform");
+                basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
+                basePlatform2.setScale(5, 1).refreshBody();
+                basePlatform3.setScale(5, 1).refreshBody();
+                basePlatform4.setScale(5, 1).refreshBody();
 
-                	platforms.create(600, 650, "platform"); // creates the upper left platform
-                	platforms.create(950, 750, "platform"); // creates the bottom right platform
-                	platforms.create(300, 550, "platform");
-                	platforms.create(100, 400, "platform");
-                	platforms.create(300, 250, "platform");
-                	platforms.create(500, 125, "platform");
-                	platforms.create(900, 0, "platform");
-                	platforms.create(1300, -125, "platform");
-                	platforms.create(1300, -275, "platform");
-                	platforms.create(900, -300, "stud");
-                	platforms.create(700, -350, "stud");
-                	platforms.create(500, -450, "stud");
-                	platforms.create(500, -600, "stud");
-                	platforms.create(300, -600, "vertPlat");
-                	platforms.create(300, -900, "vertPlat");
-                	platforms.create(300, -1050, "vertPlat");
-                	platforms.create(268, -850, "stud");
-                	platforms.create(1550, -1050, "vertPlat");
-                	platforms.create(1520, -1250, "stud");
-                	platforms.create(1550, -1150, "vertPlat");
-                	platforms.create(1550, -1250, "vertPlat");
-                	platforms.create(1550, -1350, "vertPlat");
-                	platforms.create(1520, -1100, "stud");
-                	platforms.create(1520, -1250, "stud");
-                	platforms.create(500, 125, "platform");
-                	platforms.create(3000, -450, "platform");
-                	platforms.create(3350, -450, "stud");
-                	platforms.create(3700, -500, 'stud');
-                	platforms.create(4100, -900, 'platform');
-                    platforms.create(4500, -900, 'stud')
-                    platforms.create(4600, -1000, 'vertPlat')
-                    platforms.create(5100, -400, 'platform')
-                    platforms.create(4800, -670, 'stud')
-                    platforms.create(5300, -400, 'stud')
-                    platforms.create(5500, -400, 'stud')
-                    platforms.create(5700, -400, 'stud')
-                    platforms.create(5900, -400, 'stud')
-                    platforms.create(5050, -750, 'vertPlat')
-                    platforms.create(5050, -850, 'vertPlat')
-                    platforms.create(5050, -950, 'vertPlat')
-                    platforms.create(5050, -650, 'vertPlat')
-                    
-                    
+                platforms.create(600, 650, "platform"); // creates the upper left platform
+                platforms.create(950, 750, "platform"); // creates the bottom right platform
+                platforms.create(300, 550, "platform");
+                platforms.create(100, 400, "platform");
+                platforms.create(300, 250, "platform");
+                platforms.create(500, 125, "platform");
+                platforms.create(900, 0, "platform");
+                platforms.create(1300, -125, "platform");
+                platforms.create(1300, -275, "platform");
+                platforms.create(900, -300, "stud");
+                platforms.create(700, -350, "stud");
+                platforms.create(500, -450, "stud");
+                platforms.create(500, -600, "stud");
+                platforms.create(300, -600, "vertPlat");
+                platforms.create(300, -900, "vertPlat");
+                platforms.create(300, -1050, "vertPlat");
+                platforms.create(268, -850, "stud");
+                platforms.create(1550, -1050, "vertPlat");
+                platforms.create(1520, -1250, "stud");
+                platforms.create(1550, -1150, "vertPlat");
+                platforms.create(1550, -1250, "vertPlat");
+                platforms.create(1550, -1350, "vertPlat");
+                platforms.create(1520, -1100, "stud");
+                platforms.create(1520, -1250, "stud");
+                platforms.create(500, 125, "platform");
+                platforms.create(3000, -450, "platform");
+                platforms.create(3350, -450, "stud");
+                platforms.create(3700, -500, "stud");
+                platforms.create(4100, -900, "platform");
+                platforms.create(4500, -900, "stud");
+                platforms.create(4600, -1000, "vertPlat");
+                platforms.create(5100, -400, "platform");
+                platforms.create(4800, -670, "stud");
+                platforms.create(5300, -400, "stud");
+                platforms.create(5500, -400, "stud");
+                platforms.create(5700, -400, "stud");
+                platforms.create(5900, -400, "stud");
+                platforms.create(5050, -750, "vertPlat");
+                platforms.create(5050, -850, "vertPlat");
+                platforms.create(5050, -950, "vertPlat");
+                platforms.create(5050, -650, "vertPlat");
+                platforms.create(6000, -1400, "stud");
+                platforms.create(5650, -1400, "stud");
+                platforms.create(5300, -1400, "stud");
+                platforms.create(4950, -1400, "stud");
+                platforms.create(4650, -1550, "platform");
+                platforms.create(4350, -1700, "platform");
+                platforms.create(4050, -1850, "platform");
+                platforms.create(2600, -2000, "platform");
+                platforms.create(700, -2100, 'platform');
             }
-        
 
-        function createBounceBlock(scene, x, y) {
-            bounceBlocks.create(x, y, "bounceBlock");
-        }
+            function createBounceBlock(scene, x, y) {
+                bounceBlocks.create(x, y, "bounceBlock");
+            }
 
-        function createFallingBlock(scene, x, y) {
-            let fallingBlock = scene.physics.add.image(x, y, "fallingBlock");
-            fallingBlocks.add(fallingBlock);
-            fallingBlock.setImmovable(true);
-            fallingBlock.body.allowGravity = false;
-            fallingBlock.originalY = y; 
-            fallingBlock.originalX = x;
-        }
-
-        function fall(player, fallingBlock) {
-            player.scene.time.delayedCall(300, function () {
-            fallingBlock.setImmovable(false);
-            fallingBlock.body.allowGravity = true;
-            fallingBlock.body.setVelocityX(0);
-            fallingBlock.body.setVelocityY(1000);
-            });
-
-            player.scene.time.delayedCall(3000, function () {
-                fallingBlock.setPosition(fallingBlock.originalX, fallingBlock.originalY);
+            function createFallingBlock(scene, x, y) {
+                let fallingBlock = scene.physics.add.image(x, y, "fallingBlock");
+                fallingBlocks.add(fallingBlock);
                 fallingBlock.setImmovable(true);
                 fallingBlock.body.allowGravity = false;
-                fallingBlock.setVelocityY(0);
-                fallingBlock.setVelocityX(0);
-                
-            });
-        }
-
-        function bounce(player, bounceBlock) {
-            if (player.body.touching.down && bounceBlock.body.touching.up) {
-                player.setVelocityY(-1600); 
-            }
-        }
-
-        function update() {
-            player.setVelocityX(0);
-
-            player.setDragX(1000);
-
-            if (cursors.left.isDown || keys.A.isDown) {
-                player.setVelocityX(-400);
+                fallingBlock.originalY = y;
+                fallingBlock.originalX = x;
             }
 
-            if (cursors.right.isDown || keys.D.isDown) {
-                player.setVelocityX(400);
+            function fall(player, fallingBlock) {
+                player.scene.time.delayedCall(300, function () {
+                    fallingBlock.setImmovable(false);
+                    fallingBlock.body.allowGravity = true;
+                    fallingBlock.body.setVelocityX(0);
+                    fallingBlock.body.setVelocityY(1000);
+                });
+
+                player.scene.time.delayedCall(3000, function () {
+                    fallingBlock.setPosition(fallingBlock.originalX, fallingBlock.originalY);
+                    fallingBlock.setImmovable(true);
+                    fallingBlock.body.allowGravity = false;
+                    fallingBlock.setVelocityY(0);
+                    fallingBlock.setVelocityX(0);
+                });
             }
 
-            if (player.body.touching.down) {
-                coyoteFrames = 8;
+            function bounce(player, bounceBlock) {
+                if (player.body.touching.down && bounceBlock.body.touching.up) {
+                    player.setVelocityY(-1600);
+                }
             }
 
-            if ((player.body.touching.down || coyoteFrames > 0) && jumpBuffer > 0) {
-                player.setVelocityY(-1100);
-                jumpBuffer = 0;
-                coyoteFrames = 0;
+            function update() {
+                player.setVelocityX(0);
+
+                player.setDragX(1000);
+
+                if (cursors.left.isDown || keys.A.isDown) {
+                    player.setVelocityX(-400);
+                }
+
+                if (cursors.right.isDown || keys.D.isDown) {
+                    player.setVelocityX(400);
+                }
+
+                if (player.body.touching.down) {
+                    coyoteFrames = 8;
+                }
+
+                if ((player.body.touching.down || coyoteFrames > 0) && jumpBuffer > 0) {
+                    player.setVelocityY(-1100);
+                    jumpBuffer = 0;
+                    coyoteFrames = 0;
+                }
+
+                if (keys.R.isDown) {
+                    player.setVelocityY(-2000);
+                }
+
+                if (keys.Q.isDown) {
+                    player.setVelocityX(-2000);
+                }
+
+                if (keys.E.isDown) {
+                    player.setVelocityX(2000);
+                }
+
+                if (jumpBuffer > 0) {
+                    jumpBuffer--;
+                }
+
+                if (coyoteFrames > 0) {
+                    coyoteFrames--;
+                }
             }
 
-            if (keys.R.isDown) {
-                player.setVelocityY(-2000);
+            function jump(event) {
+                if (player.body.touching.down || coyoteFrames > 0) {
+                    player.setVelocityY(-1100);
+                    coyoteFrames = 0;
+                } else {
+                    jumpBuffer = 8;
+                }
             }
-
-            if (jumpBuffer > 0) {
-                jumpBuffer--;
-            }
-
-            if (coyoteFrames > 0) {
-                coyoteFrames--;
-            }
-        }
-
-        function jump(event) {
-            if (player.body.touching.down || coyoteFrames > 0) {
-                player.setVelocityY(-1100);
-                coyoteFrames = 0;
-            } else {
-                jumpBuffer = 8;
-            }
-        }
-    </script>
-</body>
+        </script>
+    </body>
 </html>
