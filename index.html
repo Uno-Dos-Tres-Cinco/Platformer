@@ -63,12 +63,16 @@
                 this.load.image("fallingBlock", "assets/falling_plat.png");
                 this.load.image("dirt", "assets/dirt.png");
                 this.load.image("trust_me_bro", "assets/trust.png");
+                this.load.image('sign', 'assets/pixil-frame-0(12).png');
+                this.load.image('yes', 'assets/pixilart-drawing.png');
             }
 
             function create() {
                 this.add.image(1620, -1400, "trust_me_bro");
                 createMountains(this);
                 createPlatforms(this);
+                this.add.image(-200, -4400, 'sign');
+                this.add.image(7550, 0, 'yes');
 
                 player = new Player(this, 1500, 800);
                 this.physics.add.collider(player, platforms);
@@ -163,11 +167,13 @@
                 let basePlatform3 = platforms.create(5400, -550, "platform"); //headhitter jumps
                 let basePlatform4 = platforms.create(3300, -2000, "platform");
                 let basePlatform5 = platforms.create(-500, -4000, "platform");
+                let basePlatform6 = platforms.create(7200, 100, 'platform');
                 basePlatform.setScale(10, 1).refreshBody(); // scales the base platform in the x axis to cover the entire floor
                 basePlatform2.setScale(5, 1).refreshBody();
                 basePlatform3.setScale(5, 1).refreshBody();
                 basePlatform4.setScale(5, 1).refreshBody();
                 basePlatform5.setScale(5, 1).refreshBody();
+                basePlatform6.setScale(5, 1).refreshBody();
 
                 platforms.create(600, 650, "platform"); // creates the upper left platform
                 platforms.create(950, 750, "platform"); // creates the bottom right platform
@@ -222,6 +228,17 @@
                 platforms.create(-500, -3600, 'platform');
                 platforms.create(-1300, -3000, 'stud');
                 platforms.create(-1300, -3500, 'stud');
+                platforms.create(7950, 100, 'stud');
+                platforms.create(8350, 100, 'stud');
+                platforms.create(8750, 100, 'stud');
+                platforms.create(9150, 100, 'stud');
+                platforms.create(9550, 100, 'stud');
+                platforms.create(9950, 100, 'stud');
+                platforms.create(10350, 100, 'stud');
+                platforms.create(10750, 100, 'stud');
+                platforms.create(11050, 100, 'stud');
+                platforms.create(11450, 100, 'stud');
+                platforms.create(12000, 100, 'platform');
             }
 
             function createBounceBlock(scene, x, y) {
