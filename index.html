@@ -30,6 +30,12 @@
                     this.setScale(2);
                     this.setCollideWorldBounds(false);
                     this.setGravityY(3000);
+                    this.spawnPoint = { x: x, y: y }; // Store the spawn point
+                }
+
+                respawn() {
+                    this.setPosition(this.spawnPoint.x, this.spawnPoint.y); // Respawn the player at the spawn point
+                    this.setVelocity(0, 0); // Reset velocity
                 }
             }
 
@@ -295,6 +301,11 @@
 
                 if (coyoteFrames > 0) {
                     coyoteFrames--;
+                }
+
+                // Check if the player has fallen off the map
+                if (player.y > config.height) {
+                    player.respawn();
                 }
             }
 
